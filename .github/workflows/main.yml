@@ -3,7 +3,7 @@ name: First Workflow
 on: 
    push:
         tags:
-         -'v*'
+         -'v**'
 
 jobs:
   build:
