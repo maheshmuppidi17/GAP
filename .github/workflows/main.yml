@@ -1,8 +1,9 @@
 name: First Workflow
 
 on: 
-  pull_request:
-    types : [opened,closed]
+   push:
+        tags:
+         -'v*'
 
 jobs:
   build:
