@@ -1,30 +1,18 @@
-name: First Workflow
+name: Java Setup
 
 on: 
-   push:
-      branches:
-       - master
-      tags:
-         -'v*'
+   workflow_dispatch
 
 jobs:
-  build:
+  java-setup:
     runs-on: ubuntu-latest
     steps:
-      - name: Print build
-        run: echo 'build'
+      - name: Setup Java JDK
+        uses: actions/setup-java@v5.0.0
+        with:
+          java-version: '17'
+          distribution: microsoft
+      - name: Print Java Version
+        run: echo java --version
 
-  test:
-    runs-on: windows-latest
-    steps:
-      - name: Print test - chrome
-        run: echo 'test chrome'
-
-      - name: Print test - edge
-        run: echo 'test edge'
-
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print deploy
-        run: echo 'deploy'
+ 
