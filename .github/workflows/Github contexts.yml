@@ -1,46 +1,42 @@
-name: Contexts Demo
+name: CI Node.js Project
 
 on: workflow_dispatch
 
-env:
-  GLOBAL_ENV: 'Hello from global env'
-
 jobs:
-  show-github:
+  build:
     runs-on: ubuntu-latest
-    steps:
-      - name: Show github context
-        run: |
-          echo 'Repository: ${{ github.repository }}'
-          echo 'Branch/Ref: ${{ github.ref }}'
-          echo 'Commit SHA: ${{ github.sha }}'
-          echo 'Actor: ${{ github.actor }}'
-          echo 'Event: ${{ github.event_name }}'
 
-  show-env:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Show env context
-        run: |
-          echo 'Global ENV: ${{ env.GLOBAL_ENV }}'
-          echo "PATH: $PATH"
-
-  show-secrets:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check if secret exists
-        run: |
-          if [ -n '${{ secrets.MY_SECRET }}' ]; then
-            echo 'Secret is set (not showing value)'
-          else
-            echo 'Secret is NOT set'
-          fi
-
-  show-matrix:
-    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10']
+        node-version: [18, 20]  
+
     steps:
-      - name: Print matrix value
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build project
+        run: npm run build --if-present
+
+      - name: Archive production build
+        if: success()
         run: |
+          mkdir -p staging
+          cp -r dist/* staging || cp -r build/* staging || echo "No build folder found"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-build
+          path: staging
