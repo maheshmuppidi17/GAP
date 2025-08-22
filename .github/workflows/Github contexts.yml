@@ -66,4 +66,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Show job output
-        run: echo "Job output was ${{ needs.job-with-outp
+        run: echo "Job output w
