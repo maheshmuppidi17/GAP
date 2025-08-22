@@ -1,0 +1,65 @@
+name: Contexts Demo
+
+on: workflow_dispatch
+
+env:
+  GLOBAL_ENV: "Hello from global env"
+
+jobs:
+  show-github:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show github context
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch/Ref: ${{ github.ref }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Event: ${{ github.event_name }}"
+
+  show-env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show env context
+        run: |
+          echo "Global ENV: ${{ env.GLOBAL_ENV }}"
+          echo "PATH: ${{ env.PATH }}"
+
+  show-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show secret usage
+        run: echo "Secret length: ${{ secrets.MY_SECRET && 'set' || 'not set' }}"
+        # (Note: we never print real secret values!)
+
+  show-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.9', '3.10' ]
+    steps:
+      - name: Print matrix value
+        run: echo "Matrix Python version = ${{ matrix.python-version }}"
+
+  show-steps:
+    runs-on: ubuntu-latest
+    steps:
+      - id: first
+        run: echo "result=42" >> $GITHUB_OUTPUT
+      - name: Use step output
+        run: echo "First step output was ${{ steps.first.outputs.result }}"
+
+  job-with-outputs:
+    runs-on: ubuntu-latest
+    outputs:
+      job-result: ${{ steps.calc.outputs.value }}
+    steps:
+      - id: calc
+        run: echo "value=12345" >> $GITHUB_OUTPUT
+
+  use-job-output:
+    needs: job-with-outputs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show job output
+        run: echo "Job output was ${{ needs.job-with-outputs.outputs.job-result }}"
